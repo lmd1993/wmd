@@ -26,19 +26,21 @@
 # $Id$
 
 WRAPPERS := _emd.so emd.py
-LIBS =
+LIBS := $(shell python2-config --prefix)/lib
 INCLUDES := $(shell python2-config --includes)
 
 CC = cc
 LD = ld
-CFLAGS = -fPIC
+LD_FLAGS := -L$(LIBS) $(shell python2-config --ldflags)
+CFLAGS := $(shell python2-config --cflags)
+CFLAGS += -fPIC
 
 all: $(WRAPPERS)
 
 _%.so: %.o %_wrap.o
 	@echo ">>> Linking wrapper library '$(@)'."
 	@echo -n "    "
-	$(LD) -shared -o $@ $^
+	$(LD) $(LD_LIBS) $(LD_FLAGS) -dylib -o $@ $^
 	@echo
 
 %.o: %.c
@@ -56,7 +58,7 @@ _%.so: %.o %_wrap.o
 
 clean:
 	rm -f $(WRAPPERS) *.o *_wrap.c *.pyc *.pyo
-	rm -rf __pycache__ 
+	rm -rf __pycache__
 
 mrproper: clean
 	rm -f *~
